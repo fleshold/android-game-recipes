@@ -4,17 +4,20 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.Binder;
 import android.os.IBinder;
 
 public class SFMusic extends Service {
 	   public static boolean isRunning = false;
 	   static MediaPlayer player;
 	   private static Context context;
+	   private final IBinder binder = new musicBinder();
 	   @Override
 	   public IBinder onBind(Intent arg0) {
-		   return null;     
+	   	return binder;
 		   }     
-	   @Override
+
+		   @Override
 	   public void onCreate() {         
 		   super.onCreate();
 		   context = this;
@@ -35,19 +38,29 @@ public class SFMusic extends Service {
 			   player.stop();
 		   }
 
-		   return Service.START_STICKY_COMPATIBILITY;
+		   return Service.START_STICKY;
 	   }      
-	   public void onStart(Intent intent, int startId) {
-		   // TODO        
-		   }    
+
 	   public IBinder onUnBind(Intent arg0) {
 			   // TODO Auto-generated method stub          
 			   return null;     
 		}      
-		public void onStop() {
-			   isRunning = false;
+		public void onChange() {
+			   isRunning = !isRunning;
+			   if (isRunning){
+				   player.start();
+			   } else {
+				   player.pause();
+			   }
 		}     
-		public void onPause() {      }     
+		public void onPause() {      }
+
+
+		public class musicBinder extends Binder {
+			SFMusic getService() {
+			return SFMusic.this;
+		}
+	}
 		@Override
 		public void onDestroy() {          
 			   player.stop();         
